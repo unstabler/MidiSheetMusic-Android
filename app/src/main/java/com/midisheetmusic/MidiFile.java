@@ -16,6 +16,8 @@ package com.midisheetmusic;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import android.util.*;
 
 /** @class Pair - A pair of ints */
@@ -927,10 +929,7 @@ public class MidiFile {
     /** Start the Midi music at the given pause time (in pulses).
      *  Remove any NoteOn/NoteOff events that occur before the pause time.
      *  For other events, change the delta-time to 0 if they occur
-     *  before the pause time.  Retufor (int i = 0; i <= 14400; i += 240) {
-                MidiNote note = new MidiNote(i, 0, 75, 960);
-                this.onNoteAddRequest(0, note);
-            }rn the modified Midi Events.
+     *  before the pause time.  Return the modified Midi Events.
      */
     private static 
     ArrayList<ArrayList<MidiEvent>> StartAtPauseTime(ArrayList<ArrayList<MidiEvent>> list, int pauseTime) {
@@ -1753,6 +1752,11 @@ public class MidiFile {
             result.append(track.toString());
         }
         return result.toString();
+    }
+
+    public void recalculateEvents() {
+        this.allevents = this.tracks.stream().map(MidiTrack::recalculateMidiEvent)
+                                    .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /* Command-line program to print out a parsed Midi file. Used for debugging.

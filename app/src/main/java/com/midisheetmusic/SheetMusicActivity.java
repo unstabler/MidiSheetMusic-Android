@@ -518,6 +518,7 @@ public class SheetMusicActivity extends MidiHandlingActivity implements SheetMus
         Log.d("SheetMusicActivity", String.format("[%d] onNoteAddRequest() called: %s", trackNum, midiNote.toString()));
         this.midifile.getTracks().get(trackNum).AddNote(midiNote);
         createSheetMusic(options);
+        this.midifile.recalculateEvents();
     }
 }
 

@@ -14,6 +14,8 @@
 
 package com.midisheetmusic;
 
+import android.util.Log;
+
 import java.util.*;
 
 
@@ -108,6 +110,8 @@ public class MidiTrack {
             if (note.getChannel() == channel && note.getNumber() == notenumber &&
                 note.getDuration() == 0) {
                 note.NoteOff(endtime);
+
+                Log.d("note", note.toString());
                 return;
             }
         }
@@ -144,6 +148,74 @@ public class MidiTrack {
         }
         result.append("End Track\n");
         return result.toString();
+    }
+
+    /**
+     * Java Object로부터 MidiEvent를 재계산해 냅니다
+     * @warn 일부 속성(pitch bend) 손실될 수 있습니다
+     * @return
+     */
+    public ArrayList<MidiEvent> recalculateMidiEvent() {
+        ArrayList<MidiEvent> events = new ArrayList<>();
+
+        this.getNotes().sort((n1, n2) -> n1.getStartTime() - n2.getStartTime());
+
+        int prevEndTime = 0;
+        for (MidiNote note : this.getNotes()) {
+            int delta = prevEndTime - note.getStartTime();
+            MidiEvent noteOnEvent = new MidiEvent();
+            noteOnEvent.DeltaTime = delta;
+            noteOnEvent.StartTime = note.getStartTime();
+            noteOnEvent.HasEventflag = true;
+            noteOnEvent.EventFlag = (byte) 0x90;
+            noteOnEvent.Channel = (byte) note.getChannel();
+            noteOnEvent.Notenumber = (byte) note.getNumber();
+            noteOnEvent.Velocity = 127;
+            noteOnEvent.Instrument = 0;
+            noteOnEvent.KeyPressure = 64;
+            noteOnEvent.ChanPressure = 64;
+            noteOnEvent.ControlNum = 0;
+            noteOnEvent.ControlValue = 0;
+            noteOnEvent.PitchBend = 0;
+            noteOnEvent.Numerator = 0;
+            noteOnEvent.Denominator = 0;
+            noteOnEvent.Tempo = 0;
+            noteOnEvent.Metaevent = 0;
+            noteOnEvent.Metalength = 0;
+            noteOnEvent.Value = new byte[] {};
+
+            events.add(noteOnEvent);
+
+            /*
+            TODO: note off event도 추가해야 하나?
+            MidiEvent noteOffEvent = new MidiEvent();
+            noteOffEvent.DeltaTime = note.getEndTime() - note.getStartTime();
+            noteOffEvent.StartTime = note.getEndTime();
+            noteOffEvent.HasEventflag = true;
+            noteOffEvent.EventFlag = (byte) 0x80;
+            noteOffEvent.Channel = (byte) note.getChannel();
+            noteOffEvent.Notenumber = (byte) note.getNumber();
+            noteOffEvent.Velocity = 127;
+            noteOffEvent.Instrument = 0;
+            noteOffEvent.KeyPressure = 64;
+            noteOffEvent.ChanPressure = 64;
+            noteOffEvent.ControlNum = 0;
+            noteOffEvent.ControlValue = 0;
+            noteOffEvent.PitchBend = 0;
+            noteOffEvent.Numerator = 0;
+            noteOffEvent.Denominator = 0;
+            noteOffEvent.Tempo = 0;
+            noteOffEvent.Metaevent = 0;
+            noteOffEvent.Metalength = 0;
+            noteOffEvent.Value = new byte[] {};
+
+            events.add(noteOffEvent);
+            prevEndTime = note.getEndTime();
+            */
+
+        }
+
+        return events;
     }
 }
 

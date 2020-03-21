@@ -46,7 +46,7 @@ public class MidiEvent implements Comparator<MidiEvent> {
     }
 
     /** Return a copy of this event */
-    public MidiEvent Clone() {
+    public MidiEvent Clone()  {
         MidiEvent mevent= new MidiEvent();
         mevent.DeltaTime = DeltaTime;
         mevent.StartTime = StartTime;

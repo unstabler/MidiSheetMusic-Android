@@ -1402,7 +1402,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
                     scrollAnimation.stopMotion();
                 } else if (isEditMode) {
                     for (int i = 0; i <= 14400; i += 240) {
-                        // -_-;; 
+                        // -_-;;
                         MidiNote note = new MidiNote(i, 0, 75, 240);
                         this.onNoteAddRequestListener.onNoteAddRequest(0, note);
                     }
