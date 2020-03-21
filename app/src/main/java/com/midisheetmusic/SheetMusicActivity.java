@@ -59,7 +59,7 @@ import java.util.zip.CRC32;
  *  <li> Piano : For highlighting the piano notes during playback.
  *  <li> SheetMusic : For highlighting the sheet music notes during playback.
  */
-public class SheetMusicActivity extends MidiHandlingActivity implements SheetMusic.OnNoteAddRequestListener {
+public class SheetMusicActivity extends MidiHandlingActivity implements SheetMusic.SheetMusicRequestListener {
 
     public static final String MidiTitleID = "MidiTitleID";
     public static final int settingsRequestCode = 1;
@@ -218,6 +218,7 @@ public class SheetMusicActivity extends MidiHandlingActivity implements SheetMus
         layout.requestLayout();
 
         player.setSheetUpdateRequestListener(() -> createSheetMusic(options));
+        this.midifile.recalculateEvents();
         createSheetMusic(options);
     }
 
@@ -517,6 +518,12 @@ public class SheetMusicActivity extends MidiHandlingActivity implements SheetMus
     public void onNoteAddRequest(int trackNum, MidiNote midiNote) {
         Log.d("SheetMusicActivity", String.format("[%d] onNoteAddRequest() called: %s", trackNum, midiNote.toString()));
         this.midifile.getTracks().get(trackNum).AddNote(midiNote);
+        createSheetMusic(options);
+        this.midifile.recalculateEvents();
+    }
+
+    @Override
+    public void onRefreshRequest() {
         createSheetMusic(options);
         this.midifile.recalculateEvents();
     }

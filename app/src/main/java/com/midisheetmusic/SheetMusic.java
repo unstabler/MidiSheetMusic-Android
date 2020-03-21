@@ -17,6 +17,7 @@ import java.util.*;
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
+import android.util.Log;
 import android.view.*;
 
 import com.midisheetmusic.sheets.AccidSymbol;
@@ -68,8 +69,9 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     public static final int GradualScroll   = 2;
     public static final int DontScroll      = 3;
 
-    public interface OnNoteAddRequestListener {
+    public interface SheetMusicRequestListener {
         void onNoteAddRequest(int trackNum, MidiNote midiNote);
+        void onRefreshRequest();
     }
 
     private ArrayList<Staff> staffs;  /** The array of staffs to display (from top to bottom) */
@@ -106,7 +108,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     private ScrollAnimation scrollAnimation;
 
     private boolean isEditMode = true;
-    private OnNoteAddRequestListener onNoteAddRequestListener = null;
+    private SheetMusicRequestListener sheetMusicRequestListener = null;
 
     public SheetMusic(Context context) {
         super(context);
@@ -130,12 +132,12 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
      * - Vertically align the music symbols in all the tracks
      * - Partition the music notes into horizontal staffs
      */
-    public void init(MidiFile file, MidiOptions options, OnNoteAddRequestListener onNoteAddRequestListener) {
+    public void init(MidiFile file, MidiOptions options, SheetMusicRequestListener sheetMusicRequestListener) {
         if (options == null) {
             options = new MidiOptions(file);
         }
 
-        this.onNoteAddRequestListener = onNoteAddRequestListener;
+        this.sheetMusicRequestListener = sheetMusicRequestListener;
         zoom = 1.0f;
 
         filename = file.getFileName();
@@ -1401,11 +1403,20 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
                     player.Pause();
                     scrollAnimation.stopMotion();
                 } else if (isEditMode) {
-                    for (int i = 0; i <= 14400; i += 240) {
+                    /*
+                    int j = 0;
+                    boolean x = true;
+                    final int baseNoteNum = 72;
+                    for (int i = 0; i <= 14400; i += 60) {
                         // -_-;;
-                        MidiNote note = new MidiNote(i, 0, 75, 240);
-                        this.onNoteAddRequestListener.onNoteAddRequest(0, note);
+                        MidiNote note = new MidiNote(i, 1, baseNoteNum + j, 60);
+                        this.sheetMusicRequestListener.onNoteAddRequest(0, note);
+                        j += 1 * (x ? 1 : -1);
+                        if (Math.abs(j) >= 4) {
+                            x = !x;
+                        }
                     }
+                    */
                 }
                 return result;
 
@@ -1434,6 +1445,20 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
 
     /** When the scroll is tapped, highlight the position tapped */
     public void scrollTapped(int x, int y) {
+        if (isEditMode) {
+            // FIXME: 잘못된 액세스 방식.
+            // FIXME: 1번 트랙의 노트만 삭제됨.
+            int pulseTime = player.sheet.PulseTimeForPoint(new Point(scrollX + x, scrollY + y));
+            MidiNote note = this.player.midifile.getTracks().get(0).findNoteByPulse(pulseTime);
+
+            if (note != null) {
+                Log.d("SheetMusic", "note found: " + note.toString());
+                Log.d("SheetMusic", "removing note from sheet");
+                this.player.midifile.getTracks().get(0).getNotes().remove(note);
+                this.sheetMusicRequestListener.onRefreshRequest();
+            }
+            return;
+        }
         if (player != null) {
             player.MoveToClicked(scrollX + x, scrollY + y);
         }

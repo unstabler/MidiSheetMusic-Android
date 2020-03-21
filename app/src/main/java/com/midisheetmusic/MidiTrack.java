@@ -162,9 +162,9 @@ public class MidiTrack {
 
         int prevEndTime = 0;
         for (MidiNote note : this.getNotes()) {
-            int delta = prevEndTime - note.getStartTime();
+            int delta = note.getStartTime() - prevEndTime;
             MidiEvent noteOnEvent = new MidiEvent();
-            noteOnEvent.DeltaTime = delta;
+            noteOnEvent.DeltaTime = 0;
             noteOnEvent.StartTime = note.getStartTime();
             noteOnEvent.HasEventflag = true;
             noteOnEvent.EventFlag = (byte) 0x90;
@@ -186,8 +186,6 @@ public class MidiTrack {
 
             events.add(noteOnEvent);
 
-            /*
-            TODO: note off event도 추가해야 하나?
             MidiEvent noteOffEvent = new MidiEvent();
             noteOffEvent.DeltaTime = note.getEndTime() - note.getStartTime();
             noteOffEvent.StartTime = note.getEndTime();
@@ -211,11 +209,22 @@ public class MidiTrack {
 
             events.add(noteOffEvent);
             prevEndTime = note.getEndTime();
-            */
-
         }
 
         return events;
+    }
+
+    /**
+     * findNoteByPulse
+     * @return 없으면 null을 반환
+     */
+    MidiNote findNoteByPulse(int pulse) {
+        for (MidiNote note : this.getNotes()) {
+            if (note.getStartTime() == pulse) {
+                return note;
+            }
+        }
+        return null;
     }
 }
 
