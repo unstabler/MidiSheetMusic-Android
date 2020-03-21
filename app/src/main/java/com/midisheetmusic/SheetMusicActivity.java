@@ -22,6 +22,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,7 +59,7 @@ import java.util.zip.CRC32;
  *  <li> Piano : For highlighting the piano notes during playback.
  *  <li> SheetMusic : For highlighting the sheet music notes during playback.
  */
-public class SheetMusicActivity extends MidiHandlingActivity {
+public class SheetMusicActivity extends MidiHandlingActivity implements SheetMusic.OnNoteAddRequestListener {
 
     public static final String MidiTitleID = "MidiTitleID";
     public static final int settingsRequestCode = 1;
@@ -229,7 +230,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         piano.setVisibility(options.showPiano ? View.VISIBLE : View.GONE);
         sheet = new SheetMusic(this);
-        sheet.init(midifile, options);
+        sheet.init(midifile, options, this);
         sheet.setPlayer(player);
         layout.addView(sheet);
         piano.SetMidiFile(midifile, options, player);
@@ -510,6 +511,13 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                         // Hide the nav bar and status bar
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    @Override
+    public void onNoteAddRequest(int trackNum, MidiNote midiNote) {
+        Log.d("SheetMusicActivity", String.format("[%d] onNoteAddRequest() called: %s", trackNum, midiNote.toString()));
+        this.midifile.getTracks().get(trackNum).AddNote(midiNote);
+        createSheetMusic(options);
     }
 }
 

@@ -68,6 +68,10 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     public static final int GradualScroll   = 2;
     public static final int DontScroll      = 3;
 
+    public interface OnNoteAddRequestListener {
+        void onNoteAddRequest(int trackNum, MidiNote midiNote);
+    }
+
     private ArrayList<Staff> staffs;  /** The array of staffs to display (from top to bottom) */
     private KeySignature mainkey;     /** The main key signature */
 
@@ -101,6 +105,9 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     private int      scrollY;
     private ScrollAnimation scrollAnimation;
 
+    private boolean isEditMode = true;
+    private OnNoteAddRequestListener onNoteAddRequestListener = null;
+
     public SheetMusic(Context context) {
         super(context);
         SurfaceHolder holder = getHolder();
@@ -123,10 +130,12 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
      * - Vertically align the music symbols in all the tracks
      * - Partition the music notes into horizontal staffs
      */
-    public void init(MidiFile file, MidiOptions options) {
+    public void init(MidiFile file, MidiOptions options, OnNoteAddRequestListener onNoteAddRequestListener) {
         if (options == null) {
             options = new MidiOptions(file);
         }
+
+        this.onNoteAddRequestListener = onNoteAddRequestListener;
         zoom = 1.0f;
 
         filename = file.getFileName();
@@ -1387,10 +1396,16 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
         boolean result = scrollAnimation.onTouchEvent(event);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                // If we touch while music is playing, stop the midi player 
+                // If we touch while music is playing, stop the midi player
                 if (player != null && player.getVisibility() == View.GONE && !player.isInMidiMode()) {
                     player.Pause();
                     scrollAnimation.stopMotion();
+                } else if (isEditMode) {
+                    for (int i = 0; i <= 14400; i += 240) {
+                        // -_-;; 
+                        MidiNote note = new MidiNote(i, 0, 75, 240);
+                        this.onNoteAddRequestListener.onNoteAddRequest(0, note);
+                    }
                 }
                 return result;
 

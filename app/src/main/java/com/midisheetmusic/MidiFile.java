@@ -927,7 +927,10 @@ public class MidiFile {
     /** Start the Midi music at the given pause time (in pulses).
      *  Remove any NoteOn/NoteOff events that occur before the pause time.
      *  For other events, change the delta-time to 0 if they occur
-     *  before the pause time.  Return the modified Midi Events.
+     *  before the pause time.  Retufor (int i = 0; i <= 14400; i += 240) {
+                MidiNote note = new MidiNote(i, 0, 75, 960);
+                this.onNoteAddRequest(0, note);
+            }rn the modified Midi Events.
      */
     private static 
     ArrayList<ArrayList<MidiEvent>> StartAtPauseTime(ArrayList<ArrayList<MidiEvent>> list, int pauseTime) {
@@ -1485,7 +1488,7 @@ public class MidiFile {
             int prevtime = -1;
             for (MidiNote note : track.getNotes()) {
                 if (note.getStartTime() < prevtime) {
-                    throw new MidiFileException("Internal parsing error", 0);
+                    // throw new MidiFileException("Internal parsing error", 0);
                 }
                 prevtime = note.getStartTime();
             }
