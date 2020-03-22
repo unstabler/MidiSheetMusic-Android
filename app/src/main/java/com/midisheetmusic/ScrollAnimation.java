@@ -140,6 +140,10 @@ public class ScrollAnimation {
 
                     listener.scrollTapped((int)downX, (int)downY);
                     return true;
+                } else if (Math.abs(overallDeltaX) <= 50) {
+                    Log.d("ScrollAnimation", "TODO: move note");
+                    listener.moveNote((int) downX, (int) downY, (int) upY);
+                    return true;
                 }
 
                 if (scrollVert) {

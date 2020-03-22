@@ -1464,6 +1464,23 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
         }
     }
 
+    @Override
+    public void moveNote(int downX, int downY, int upY) {
+        if (isEditMode) {
+            // FIXME: 잘못된 액세스 방식.
+            // FIXME: 1번 트랙의 노트만 삭제됨.
+            int pulseTime = player.sheet.PulseTimeForPoint(new Point(scrollX + downX, scrollY + downY));
+            MidiNote note = this.player.midifile.getTracks().get(0).findNoteByPulse(pulseTime);
+
+            if (note != null) {
+                Log.d("SheetMusic", "note found: " + note.toString());
+                int delta = upY - downY;
+                note.setNumber(note.getNumber() - (delta / 10));
+                this.sheetMusicRequestListener.onRefreshRequest();
+            }
+        }
+    }
+
     public void setPlayer(MidiPlayer p) {
         player = p;
     }
