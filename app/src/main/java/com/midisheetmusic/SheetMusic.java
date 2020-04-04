@@ -1520,6 +1520,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
             // FIXME: 1번 트랙의 노트만 삭제됨.
             int pulseTime = player.sheet.PulseTimeForPoint(new Point(scrollX + x, scrollY + y));
             MidiNote note = this.player.midifile.getTracks().get(0).findNoteByPulse(pulseTime);
+            Log.d("SheetMusic", String.format("scrollTapped: %d", pulseTime));
 
             if (note != null) {
                 Log.d("SheetMusic", "note found: " + note.toString());
@@ -1528,7 +1529,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
                 this.sheetMusicRequestListener.onRefreshRequest();
             } else {
                 Log.d("SheetMusic", "adding new note");
-                MidiNote newNote = new MidiNote(pulseTime, 0, 60, 400);
+                MidiNote newNote = new MidiNote(pulseTime, 0, 60, 200);
                 this.player.midifile.getTracks().get(0).getNotes().add(newNote);
                 this.sheetMusicRequestListener.onRefreshRequest();
             }
