@@ -243,6 +243,14 @@ public class SheetMusicActivity extends MidiHandlingActivity implements SheetMus
         sheet.draw();
     }
 
+    private void
+    updateSheetMusic(MidiOptions options) {
+        sheet.reinit(options);
+        player.updateToolbarButtons();
+        layout.requestLayout();
+        sheet.draw();
+    }
+
 
     /** Always display this activity in landscape mode. */
     @Override
